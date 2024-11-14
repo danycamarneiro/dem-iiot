@@ -1,0 +1,11 @@
+{
+    "MQTTHostName": "localhost",
+    "MQTTPort": 2000,
+    "MQTTSubTopic": "#",
+    "Add_PG": true,
+    "PG_DB": "Admin",
+    "PG_host": "localhost",
+    "PG_user": "Admin",
+    "PG_pass": "root",
+    "PG_port": 5432
+}

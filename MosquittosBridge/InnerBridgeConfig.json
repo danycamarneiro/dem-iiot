@@ -1,0 +1,10 @@
+{
+    "InnerHostName": "localhost",
+    "InnerPort": 2000,
+    "InnerSubTopic": "#",
+    "OutHostName": "localhost",
+    "OutPort": 1883,
+    "OutSubTopic": "#",
+    "OutUsername": "ditto",
+    "OutPassword": "ditto"
+}

@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ThingsService" type="Application" factoryName="Application" folderName="Ditto" nameIsGenerated="true">
+    <envs>
+      <env name="LOG_LEVEL_APPLICATION" value="INFO" />
+      <env name="CLEANUP_HISTORY_RETENTION_DURATION" value="24h" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="org.eclipse.ditto.things.service.starter.ThingsService" />
+    <module name="ditto-things-service" />
+    <option name="VM_PARAMETERS" value="-Xms512m -Xmx512m" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

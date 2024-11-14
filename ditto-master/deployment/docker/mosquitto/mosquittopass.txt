@@ -1,0 +1,3 @@
+ditto:ditto
+device1:password1
+device2:password2

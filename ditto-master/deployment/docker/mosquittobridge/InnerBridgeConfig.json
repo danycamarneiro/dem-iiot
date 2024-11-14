@@ -1,0 +1,10 @@
+{
+    "InnerHostName": "MosquittoInternal",
+    "InnerPort": 1883,
+    "InnerSubTopic": "#",
+    "OutHostName": "mosquitto",
+    "OutPort": 1883,
+    "OutSubTopic": "#",
+    "OutUsername": "ditto",
+    "OutPassword": "ditto"
+}

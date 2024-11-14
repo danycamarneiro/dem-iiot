@@ -1,0 +1,8 @@
+user ditto
+topic readwrite #
+
+user device1
+topic readwrite device1
+
+user device2
+topic readwrite device2

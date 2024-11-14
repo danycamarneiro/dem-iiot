@@ -1,0 +1,47 @@
+# Copyright (c) 2022 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0
+#
+# SPDX-License-Identifier: EPL-2.0
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'ui/**'
+      - '.github/workflows/gh-pages.yml'
+  
+  # Enable manually triggering
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install npm dependencies
+        run: npm install
+        working-directory: ./ui
+      - name: Build UI with node
+        run: npm run build
+        working-directory: ./ui
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ui

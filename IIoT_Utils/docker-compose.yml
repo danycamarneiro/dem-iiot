@@ -1,0 +1,45 @@
+# Copyright (c) 2019 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License 2.0 which is available at
+# http://www.eclipse.org/legal/epl-2.0
+#
+# SPDX-License-Identifier: EPL-2.0
+# version: '3.4'
+name: dem_iiot_platform_utils
+
+services:
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "1880:1880"
+    networks:
+      - my-proxy-net
+    volumes:
+      - node-red-data:/data
+      
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      # PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+      PGADMIN_DEFAULT_EMAIL: Admin@a.a
+      # POSTGRES_USER: Admin
+      PGADMIN_DEFAULT_PASSWORD: AdminPassword
+    networks:
+      - my-proxy-net
+
+volumes:
+  node-red-data:
+
+networks:
+  my-proxy-net:
+      name: external_access_network
+      external: true
+  
