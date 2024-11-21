@@ -1,8 +1,9 @@
 import paho.mqtt.client as mqtt
 import json
-import psycopg2
+import psycopg2, influxdb_client
 import asyncio
 from time import time
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 #-------------------------------------MQTT--------------------------------------
 mqtt_flag = False
@@ -48,6 +49,7 @@ def mqtt_subscribe(client_mqtt, configfile):
                 if i.lower() == "influx":
                     print("influx")
                     print(time()-timetime)
+                    asyncio.run(Inf_add_database(namespace, device, message_json, bucket=configfile["Inf_bucket"], org=configfile["Inf_org"]))
                     
                         
 
@@ -91,7 +93,7 @@ async def PQ_add_database(namespace, device, message_json):
     # print(result)
     query = "id SERIAL PRIMARY KEY, timestamp TIMESTAMP WITH TIME ZONE,"
     try:
-        msg_timestamp = message_json["timestamp"]
+        msg_timestamp = message_json["datetimestamp"]
     except:
         msg_timestamp = "Null"
 
@@ -130,10 +132,31 @@ async def PQ_add_database(namespace, device, message_json):
                 print("something unnespected occured")
                 data_injected = True
 #------------------------------------Influx--------------------------------------
+Inf_conn = None
+# set connection
+def get_Inf_connection(ConfigData):
+    try:
+        inf_url = "http://"+ ConfigData["Inf_host"] +":"+ str(ConfigData["Inf_port"])
+        return influxdb_client.InfluxDBClient(url=inf_url, token=ConfigData["Inf_token"], org=ConfigData["Inf_org"])
+    except:
+        return False
+
+async def Inf_add_database(namespace, device, message_json,bucket,org):
+    global Inf_conn
+    write_api = Inf_conn.write_api(write_options=SYNCHRONOUS)
+    p = influxdb_client.Point(namespace).tag("device", device)
+    for j in message_json["value"]:
+        p=p.field(j, message_json["value"][j]["properties"]["value"])
+    try: 
+        write_api.write(bucket=bucket, org=org, record=p)
+    except Exception as e:
+        print(e)
+    # print("inf done")
+
 #-------------------------------------Main--------------------------------------
 async def main():
     # Import config File
-    f = open('Database BridgeConfig.json')
+    f = open('Database_Bridge_Config.json')
     ConfigData = json.load(f)
     
     # set mqtt client
@@ -152,6 +175,13 @@ async def main():
         
         
     # set influxdb client
+    if ConfigData["Add_Influx"]:
+        global Inf_conn
+        Inf_conn = get_Inf_connection(ConfigData)
+        if Inf_conn:
+            print("Connection to the InfluxDB established successfully.")
+        else:
+            print("Connection to the InfluxDB encountered and error.")
 
     # start mqtt client
     mqtt_subscribe(mqtt_client, ConfigData)

@@ -351,7 +351,7 @@ services:
     restart: unless-stopped
     container_name: iiot_mosquitto_bridge
     volumes:
-      - ./mosquittobridge/InnerBridgeConfig.json:/app/InnerBridgeConfig.json
+      - ./brokerbridge/InnerBridgeConfig.json:/app/InnerBridgeConfig.json
 
 secrets:
   influxdb2-admin-username:
