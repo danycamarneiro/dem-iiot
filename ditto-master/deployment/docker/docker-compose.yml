@@ -295,7 +295,7 @@ services:
 
   postgres:
     image: postgres:latest
-    hostname: LocalPostgre
+    hostname: LocalPostgres
     ports:
       - 5432:5432
     volumes:
@@ -313,6 +313,7 @@ services:
 
   influxdb2:
     image: influxdb:2
+    hostname: LocalInfluxDB
     ports:
       - 8086:8086
     environment:
@@ -346,12 +347,20 @@ services:
       - grafana-storage:/var/lib/grafana
 
  # Custom Programs
-  iiot_mosquitto_bridge:
-    image: iiot_mosquitto_bridge
+  iiot_broker_bridge:
+    image: iiot_broker_bridge
     restart: unless-stopped
-    container_name: iiot_mosquitto_bridge
+    container_name: iiot_broker_bridge
     volumes:
       - ./brokerbridge/InnerBridgeConfig.json:/app/InnerBridgeConfig.json
+      
+  # iiot_database_bridge:
+  #   image: iiot_database_bridge
+  #   restart: unless-stopped
+  #   container_name: iiot_database_bridge
+  #   volumes:
+  #     - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json    
+      
 
 secrets:
   influxdb2-admin-username:

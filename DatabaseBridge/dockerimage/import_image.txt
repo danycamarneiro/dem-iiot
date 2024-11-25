@@ -1,0 +1,4 @@
+-> use cmd, not powershell !!!!
+-> cd <dir_path>
+
+docker load < iiot_database_bridge.tar

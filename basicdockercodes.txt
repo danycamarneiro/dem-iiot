@@ -1,1 +1,3 @@
 docker build -t <docker_image_name> .
+
+docker save <docker_image_name> > <docker_image_name>.tar

@@ -33,23 +33,27 @@ def mqtt_subscribe(client_mqtt, configfile):
         message_json = json.loads(message)
         # print(message_json)
         global pg_flag
+        global inf_flag
         namespace_id = message_json['topic'].find("/")
         device_id = message_json['topic'].find("/", namespace_id+1)
         action = message_json['topic'][device_id+1:]
         if action == "things/twin/commands/modify":
             namespace = message_json['topic'][0:namespace_id]
             device = message_json['topic'][namespace_id+1:device_id]
-            timetime = time()
-            for i in message_json['database']:
-                if i.lower() == "postgres" and pg_flag:
-                    print("postgre")
-                    print(time()-timetime)
-                    asyncio.run(PQ_add_database(namespace, device, message_json))
-                    
-                if i.lower() == "influx":
-                    print("influx")
-                    print(time()-timetime)
-                    asyncio.run(Inf_add_database(namespace, device, message_json, bucket=configfile["Inf_bucket"], org=configfile["Inf_org"]))
+            # timetime = time()
+            if 'database'in message_json:
+                for i in message_json['database']:
+                    if i.lower() == "postgres" and pg_flag:
+                        # print("postgre")
+                        # print(time()-timetime)
+                        asyncio.run(PQ_add_database(namespace, device, message_json))
+                        
+                    if i.lower() == "influx" and inf_flag:
+                        # print("influx")
+                        # print(time()-timetime)
+                        asyncio.run(Inf_add_database(namespace, device, message_json, bucket=configfile["Inf_bucket"], org=configfile["Inf_org"]))
+            else:
+                print("Object 'database' not found in the message's body")
                     
                         
 
@@ -98,14 +102,19 @@ async def PQ_add_database(namespace, device, message_json):
         msg_timestamp = "Null"
 
     variables ="timestamp, "
+
     values = "to_timestamp(" + str(msg_timestamp) + "), "
-    for j in message_json["value"]:
-        data = message_json["value"][j]["properties"]["value"]
-        if not result[0]: # no table
-            datatype = type(data)
-            query += j + " " + datatype.__name__.capitalize() +", "
-        variables += j + ", "
-        values += str(message_json["value"][j]["properties"]["value"]) + ", "
+    if 'value' in message_json:
+        for j in message_json["value"]:
+            try:
+                data = message_json["value"][j]["properties"]["value"]
+                if not result[0]: # no table
+                    datatype = type(data)
+                    query += j + " " + datatype.__name__.capitalize() +", "
+                variables += j + ", "
+                values += str(message_json["value"][j]["properties"]["value"]) + ", "
+            except:
+                print('Wrong struct used for '+ j)
     if not result[0]: # no table -> create table
         cursor.execute("CREATE TABLE "+device+"("+query[:-2]+");")
     data_injected = False
@@ -133,11 +142,15 @@ async def PQ_add_database(namespace, device, message_json):
                 data_injected = True
 #------------------------------------Influx--------------------------------------
 Inf_conn = None
+inf_flag = False
 # set connection
 def get_Inf_connection(ConfigData):
+    global inf_flag
     try:
         inf_url = "http://"+ ConfigData["Inf_host"] +":"+ str(ConfigData["Inf_port"])
-        return influxdb_client.InfluxDBClient(url=inf_url, token=ConfigData["Inf_token"], org=ConfigData["Inf_org"])
+        infclient = influxdb_client.InfluxDBClient(url=inf_url, token=ConfigData["Inf_token"], org=ConfigData["Inf_org"])
+        inf_flag = True
+        return infclient
     except:
         return False
 
@@ -145,8 +158,12 @@ async def Inf_add_database(namespace, device, message_json,bucket,org):
     global Inf_conn
     write_api = Inf_conn.write_api(write_options=SYNCHRONOUS)
     p = influxdb_client.Point(namespace).tag("device", device)
-    for j in message_json["value"]:
-        p=p.field(j, message_json["value"][j]["properties"]["value"])
+    if 'value' in message_json:
+        for j in message_json["value"]:
+            try:
+                p=p.field(j, message_json["value"][j]["properties"]["value"])
+            except:
+                print('Wrong struct used for '+ j)
     try: 
         write_api.write(bucket=bucket, org=org, record=p)
     except Exception as e:

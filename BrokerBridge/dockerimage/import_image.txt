@@ -1,4 +1,4 @@
 -> use cmd, not powershell !!!!
 -> cd <dir_path>
 
-docker load < iiot_mosquitto_bridge.tar
+docker load < iiot_broker_bridge.tar
