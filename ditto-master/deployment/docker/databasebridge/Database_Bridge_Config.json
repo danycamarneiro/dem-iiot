@@ -2,7 +2,7 @@
     "MQTTHostName": "MosquittoInternal",
     "MQTTPort": 1883,
     "MQTTSubTopic": "#",
-    "Add_PG": false,
+    "Add_PG": true,
     "PG_DB": "Admin",
     "PG_host": "LocalPostgres",
     "PG_user": "Admin",

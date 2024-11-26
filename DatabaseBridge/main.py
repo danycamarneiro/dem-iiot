@@ -73,8 +73,10 @@ def get_PQ_connection(ConfigData):
         host=ConfigData["PG_host"],
         port=ConfigData["PG_port"],
     )
-    except:
+    except Exception as e:
+        print(e)
         return False
+
 
 # adds to postgre database
 async def PQ_add_database(namespace, device, message_json):

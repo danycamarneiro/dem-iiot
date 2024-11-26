@@ -308,6 +308,7 @@ services:
       - postgre-admin-password
     networks:
       - proxynet
+      - default 
     
     
 
@@ -336,6 +337,7 @@ services:
         target: /etc/influxdb2
     networks:
       - proxynet
+      - default 
 
   grafana:
     image: grafana/grafana-enterprise
@@ -354,12 +356,12 @@ services:
     volumes:
       - ./brokerbridge/InnerBridgeConfig.json:/app/InnerBridgeConfig.json
       
-  # iiot_database_bridge:
-  #   image: iiot_database_bridge
-  #   restart: unless-stopped
-  #   container_name: iiot_database_bridge
-  #   volumes:
-  #     - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json    
+  iiot_database_bridge:
+    image: iiot_database_bridge
+    restart: unless-stopped
+    container_name: iiot_database_bridge
+    volumes:
+      - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json  
       
 
 secrets:

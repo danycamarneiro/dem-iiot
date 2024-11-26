@@ -2,3 +2,6 @@
 -> cd <dir_path>
 
 docker load < iiot_broker_bridge.tar
+
+-> build image:
+docker build -t iiot_broker_bridge .
