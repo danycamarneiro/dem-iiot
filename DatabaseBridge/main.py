@@ -2,8 +2,18 @@ import paho.mqtt.client as mqtt
 import json
 import psycopg2, influxdb_client
 import asyncio
+from math import floor
 from time import time
 from influxdb_client.client.write_api import SYNCHRONOUS
+
+#------------------------------------Funcs_random-----------------------
+def find_nth(haystack: str, needle: str, n: int) -> int:
+    start = haystack.find(needle)
+    while start >= 0 and n > 1:
+        start = haystack.find(needle, start+len(needle))
+        n -= 1
+    return start
+
 
 #-------------------------------------MQTT--------------------------------------
 mqtt_flag = False
@@ -93,30 +103,45 @@ async def PQ_add_database(namespace, device, message_json):
     
     cursor.execute("SET search_path TO " + namespace+";")
     # check if table exists
-    # cursor.execute("SELECT EXISTS ( SELECT 1 FROM pg_tables WHERE schemaname = '"+namespace+"' AND tablename = '" + device +"' ) AS table_existence;")
+    
     cursor.execute("SELECT EXISTS ( SELECT 1 FROM pg_tables WHERE tablename = '" + device +"' ) AS table_existence;")
     result = cursor.fetchone()
     # print(result)
     query = "id SERIAL PRIMARY KEY, timestamp TIMESTAMP WITH TIME ZONE,"
     try:
-        msg_timestamp = message_json["datetimestamp"]
+        msg_timestamp = floor((message_json["datetimestamp"]))
+
     except:
         msg_timestamp = "Null"
 
     variables ="timestamp, "
-
     values = "to_timestamp(" + str(msg_timestamp) + "), "
+    # print(message_json)
     if 'value' in message_json:
-        for j in message_json["value"]:
-            try:
-                data = message_json["value"][j]["properties"]["value"]
-                if not result[0]: # no table
-                    datatype = type(data)
-                    query += j + " " + datatype.__name__.capitalize() +", "
-                variables += j + ", "
-                values += str(message_json["value"][j]["properties"]["value"]) + ", "
-            except:
-                print('Wrong struct used for '+ j)
+        if message_json["path"]== "/features":
+            for j in message_json["value"]:
+                try:
+                    data = message_json["value"][j]["properties"]
+                    if not result[0]: # no table
+                        datatype = type(data)
+                        query += j + " " + datatype.__name__.capitalize() +", "
+                    variables += j + ", "
+                    values += str(message_json["value"][j]["properties"]["value"]) + ", "
+                except:
+                    print('Wrong struct used for '+ j)
+        else:
+            propertynamespace = message_json["path"][message_json["path"].rfind("/")+1:]
+            # print(propertynamespace)
+            for j in message_json["value"]["properties"]:
+                try:
+                    data = message_json["value"]["properties"][j]
+                    if not result[0]: # no table
+                        datatype = type(data)
+                        query += propertynamespace+"_"+j + " " + datatype.__name__.capitalize() +", "
+                    variables += propertynamespace+"_"+j + ", "
+                    values += str(message_json["value"]["properties"][j]) + ", "
+                except:
+                    print('Wrong struct used for '+ j)
     if not result[0]: # no table -> create table
         cursor.execute("CREATE TABLE "+device+"("+query[:-2]+");")
     data_injected = False
@@ -129,16 +154,30 @@ async def PQ_add_database(namespace, device, message_json):
             pg_conn.commit()
             # print("Done")  
         except Exception as error:
-            value_name = str(error)[str(error).rfind(",")+2:str(error).rfind(")")]
+            print(error)
+            str_error = str(error)
+            mark1 = str_error.find("\"")
+            mark2 = find_nth(str_error, "\"",2)
+            # print(str_error[mark1+1:mark2])
+            value_name = str_error[mark1+1:mark2]
             error_code = str(error)[str(error).rfind("\"")+2:str(error).rfind("\"")+16]
             # print(value_name)
             # print(error_code)
             # print(error)
             pg_conn.rollback()
             if error_code == "does not exist":
-                column_query = "ALTER TABLE "+ device + " ADD " + value_name + " " + type(message_json["value"][value_name]["properties"]["value"]).__name__.capitalize()+";"
-                # print(column_query)
+                if message_json["path"]== "/features":
+                    column_query = "ALTER TABLE "+ device + " ADD " + value_name + " " + type(message_json["value"][value_name]["properties"]["value"]).__name__.upper()+";"
+                    # print(column_query)
+                else:
+                    variable_ind = value_name[value_name.rfind("_")+1:]
+                    print("-----------------------------------------------------")
+                    print(variable_ind)
+                    alter_query = "ALTER TABLE "+ device + " ADD " + value_name + " " + type(message_json["value"]["properties"][variable_ind]).__name__.upper()+";"
+                    print(alter_query)
+                    column_query = alter_query
                 cursor.execute(column_query)
+                pg_conn.commit()
             else: # something not accounted
                 print("something unnespected occured")
                 data_injected = True
@@ -161,11 +200,19 @@ async def Inf_add_database(namespace, device, message_json,bucket,org):
     write_api = Inf_conn.write_api(write_options=SYNCHRONOUS)
     p = influxdb_client.Point(namespace).tag("device", device)
     if 'value' in message_json:
-        for j in message_json["value"]:
-            try:
-                p=p.field(j, message_json["value"][j]["properties"]["value"])
-            except:
-                print('Wrong struct used for '+ j)
+        if message_json["path"]== "/features":
+            for j in message_json["value"]:
+                try:
+                    p=p.field(j, message_json["value"][j]["properties"]["value"])
+                except:
+                    print('Wrong struct used for '+ j)
+        else:
+            propertynamespace = message_json["path"][message_json["path"].rfind("/")+1:]
+            for j in message_json["value"]["properties"]:
+                try:
+                    p=p.field(propertynamespace+"_"+j, message_json["value"]["properties"][j])
+                except:
+                    print('Wrong struct used for '+ j)
     try: 
         write_api.write(bucket=bucket, org=org, record=p)
     except Exception as e:
