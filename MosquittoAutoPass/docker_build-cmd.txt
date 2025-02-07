@@ -1,0 +1,1 @@
+docker build -t iiot_broker_auth .
