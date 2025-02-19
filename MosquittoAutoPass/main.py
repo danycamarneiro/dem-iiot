@@ -21,35 +21,91 @@ def subscribe(client, config):
     def on_message(client, userdata, msg):
         message = msg.payload.decode()
         message_json = json.loads(message)
-        update_auth(message_json,msg.topic)
+        update_auth(message_json,msg.topic, config)
 
     client.subscribe(config["SubTopic"])
     client.on_message = on_message
 #----------------------------------------------------------------------------
-def update_auth(message_json,mqtt_topic):
+def update_auth(message_json,mqtt_topic,config):
     # print(message_json)
     namespace_id = message_json['topic'].find("/")
     device_id = message_json['topic'].find("/", namespace_id+1)
     action = message_json['topic'][device_id+1:]
     device = message_json['topic'][namespace_id+1:device_id]
-    
-    if action == "things/twin/events/modified": #update password
-        if "pass" in message_json['value']["attributes"]:
-            print("Modifying '" + mqtt_topic + "' password to '" + message_json['value']["attributes"]["pass"] +"'...")
-            update_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
+
+    if device != config["Master"]:
+        if action == "things/twin/events/modified": #update password
+            if "pass" in message_json['value']["attributes"]:
+                print("Modifying '" + mqtt_topic + "' with the password to the one in the message...")
+                update_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
+            else:
+                print("No password found. No changed done.")
+        elif action == "things/twin/events/created": #create device in broker
+            if "pass" in message_json['value']["attributes"]:
+                print("Creating '" + mqtt_topic + "' with the password to the one in the message....")
+                create_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
+            else:
+                print("No password found! Setting '"+ mqtt_topic +"' password as default")
+                create_device_broker(mqtt_topic,config["DefaultPass"],device)
+        elif action == "things/twin/events/deleted": #delete device
+            print("Deleting '" + mqtt_topic +"'...")
+            delete_device_broker(mqtt_topic,device)
+                
+        
+        # add delete later on
         else:
-            print("No password found. No changed done.")
-    elif action == "things/twin/events/created": #create device in broker
-        if "pass" in message_json['value']["attributes"]:
-            print("Creating '" + mqtt_topic + "' with the password '" + message_json['value']["attributes"]["pass"] +"'...")
-            create_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
-        else:
-            print("No password found! Setting '"+ mqtt_topic +"' password as 'default'")
-    
-    # add delete later on
+            print("Message ignored case 1")
     else:
-        print("Message ignored")
-# aux = base64.b64encode("ditto".encode("ascii"))  -> encode to b64
+        print("Message ignored case 2")
+#----------------------------------------------------------------------------
+def delete_device_broker(mqtt_topic,device):
+    # get mosquitto external container id
+    client = docker.from_env()
+    mosquitto_container = client.containers.list(all=True, filters={'name':'mosquitto_external'})
+
+    # Update the encripted pass in the default config file
+    f =  open('mosquitto.passwd', 'r+')
+    file = f.read()
+    if device in file:
+        # print("found "+ device)
+        device_id_start = file.find(device)
+        device_id_end = file[device_id_start:].find("\n")
+        if device_id_end != -1: #not found \n, last item in the file
+            file_updated = file[:device_id_start] + file[device_id_start+device_id_end+1:]
+            f.seek(0)
+            f.write(file_updated)
+            f.truncate()
+            f.close()
+        else:
+            file_updated = file[:device_id_start-1] 
+            f.seek(0)
+            f.write(file_updated)
+            f.truncate()
+            f.close()       
+    else:
+        f.close()
+        print("Didn't find "+ device +" in 'mosquitto.passwd'.")
+    
+    # Check if restrict topic in the default config file
+    f =  open('mosquitto.acl', 'r+')
+    file = f.read()
+    if device in file:
+        device_id_start = file.find(device)
+        device_id_end = file.rfind(device)
+        file_updated = file[:device_id_start-7] + file[device_id_end+len(device):]
+        f.seek(0)
+        f.write(file_updated)
+        f.truncate()
+        f.close()
+    else:
+        f.close() 
+        print("Didn't find "+ device +" in 'mosquitto.acl'.")
+
+    # Restarting container (mosquitto_external)
+    mosquitto_container[0].restart()
+    print('done')
+
+
 #----------------------------------------------------------------------------
 def update_device_broker(mqtt_topic,password,device):
     # get mosquitto external container id
@@ -84,7 +140,7 @@ def update_device_broker(mqtt_topic,password,device):
             f.truncate()
             f.close()
         else:
-            file_updated = file[:device_id_start] + pass_data
+            file_updated = file[:device_id_start] + pass_data[:-2]
             f.seek(0)
             f.write(file_updated)
             f.truncate()

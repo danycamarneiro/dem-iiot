@@ -1,0 +1,1262 @@
+[
+    {
+        "id": "26aebc6e1624a286",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "dc1903aed506ee05",
+        "type": "mqtt in",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "ea90c31cbed5a177",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 320,
+        "wires": [
+            [
+                "2690ece3414bd6cb"
+            ]
+        ]
+    },
+    {
+        "id": "4640ff74662b0d22",
+        "type": "mqtt out",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "ea90c31cbed5a177",
+        "x": 610,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d72d715b5846aee8",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Send data",
+        "func": "let hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\n\nlet temp = Math.random()*100\nlet height = Math.random() * 100\n\nmsg.topic = \"ditto-tutorial/\"+hononame+\":\"+honodevice\nmsg.payload = {\n    \"topic\": hononame + \"/\" + honodevice+\"/things/twin/commands/modify\",\n    \"path\":\"/features\",\n    \"headers\":{},\n    \"value\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": temp\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": height\n            }\n        }\n    },\n    \"database\":[\"Influx\", \"Postgres\"]\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 240,
+        "wires": [
+            [
+                "4640ff74662b0d22",
+                "5adee6446be57eea"
+            ]
+        ]
+    },
+    {
+        "id": "d890651d0f1b96cc",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "d": true,
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "0.02",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 210,
+        "y": 240,
+        "wires": [
+            [
+                "d72d715b5846aee8",
+                "60a9ff6098b9d707"
+            ]
+        ]
+    },
+    {
+        "id": "2690ece3414bd6cb",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "a0db8ec841e0015e",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Ditto with MQTT",
+        "info": "",
+        "x": 200,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "070eae32de4ee07d",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Interact with Ditto's API",
+        "info": "",
+        "x": 200,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "98c8232105f264ae",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Create policy",
+        "info": "",
+        "x": 190,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "8fc028f86c78315a",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Set Variables",
+        "func": "var Hono_IP = 'localhost'\nvar Hono_Port = 8080\nvar Hono_Namespace =\"mynamespace\"\nvar Hono_Policy = \"mypolicy\"\nvar Hono_User = \"ditto\"\nvar Hono_Pass = \"ditto\"\nvar Hono_Device = \"device1\"\nvar Hono_Device2 = \"mydevice2\"\nvar MosquittoUri = \"tcp://MosquittoInternal:1883\"\nvar DevopsUser = \"devops\"\nvar DevopsPass = \"foobar\"\n\n\nflow.set(\"HonoIp\", Hono_IP)\nflow.set(\"HonoPort\", Hono_Port)\nflow.set(\"HonoName\", Hono_Namespace)\nflow.set(\"HonoPolicy\", Hono_Policy)\nflow.set(\"HonoUser\", Hono_User)\nflow.set(\"HonoPass\", Hono_Pass)\nflow.set(\"HonoDevice\",Hono_Device)\nflow.set(\"HonoDevice2\", Hono_Device2)\nflow.set(\"MosquittoUri\", MosquittoUri)\nflow.set(\"DevUser\",DevopsUser)\nflow.set(\"DevPass\",DevopsPass)",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a8c66cae5a607684",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 210,
+        "y": 60,
+        "wires": [
+            [
+                "8fc028f86c78315a",
+                "805aedb38f4889de"
+            ]
+        ]
+    },
+    {
+        "id": "1a29bc14d3668765",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Set Variables",
+        "info": "",
+        "x": 190,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "d9999a2f199f66ae",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 720,
+        "wires": [
+            [
+                "416a19b8e2b18d51"
+            ]
+        ]
+    },
+    {
+        "id": "416a19b8e2b18d51",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Create Policy",
+        "func": "let honousr = flow.get(\"HonoUser\")\nlet honopass = flow.get(\"HonoPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\n\nlet aut_string = honousr+\":\"+honopass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"PUT\"\nmsg.url = \"http://\" + honoip+\":\"+ honoport + \"/api/2/policies/\" + hononame + \":\" + honopolicy\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\nmsg.payload = {\n    \"policyId\": hononame + \":\" + honopolicy,\n    \"entries\": {\n        \"owner\": {\n            \"subjects\": {\n                \"nginx:ditto\": {\n                    \"type\": \"nginx basic auth user\"\n                }\n            },\n            \"resources\": {\n                \"thing:/\": {\n                    \"grant\": [\"READ\", \"WRITE\"],\n                    \"revoke\": []\n                },\n                \"policy:/\": {\n                    \"grant\": [\"READ\", \"WRITE\"],\n                    \"revoke\": []\n                },\n                \"message:/\": {\n                    \"grant\": [\"READ\", \"WRITE\"],\n                    \"revoke\": []\n                }\n            }\n        },\n\n        \"observer\": {\n            \"subjects\": {\n                \"ditto:observer\": {\n                    \"type\": \"observer user\"\n                }\n            },\n            \"resources\": {\n                \"thing:/features\": {\n                    \"grant\": [\"READ\"],\n                    \"revoke\": []\n                },\n                \"policy:/\": {\n                    \"grant\": [\"READ\"],\n                    \"revoke\": []\n                },\n                \"message:/\": {\n                    \"grant\": [\"READ\"],\n                    \"revoke\": []\n                }\n            }\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 720,
+        "wires": [
+            [
+                "ac0bebd45d838399"
+            ]
+        ]
+    },
+    {
+        "id": "ac0bebd45d838399",
+        "type": "http request",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 720,
+        "wires": [
+            [
+                "2506c34d5d11daff"
+            ]
+        ]
+    },
+    {
+        "id": "2506c34d5d11daff",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "5cfd45c8ec7b71e4",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Create Device",
+        "info": "",
+        "x": 190,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "e1cf731204817fa4",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 820,
+        "wires": [
+            [
+                "459f6aa7d1f84669"
+            ]
+        ]
+    },
+    {
+        "id": "459f6aa7d1f84669",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Create Device",
+        "func": "let honousr = flow.get(\"HonoUser\")\nlet honopass = flow.get(\"HonoPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\n\nlet aut_string = honousr+\":\"+honopass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"PUT\"\nmsg.url = \"http://\" + honoip + \":\" + honoport + \"/api/2/things/\" + hononame + \":\" + honodevice\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\nmsg.payload = {\n    \"policyId\": hononame + \":\" + honopolicy,\n    \"attributes\": {\n        \"name\": honodevice,\n        \"type\": \"dummy device\"\n    },\n    \"features\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": 0\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": 0\n            }\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 820,
+        "wires": [
+            [
+                "d82ff9be81f47e96"
+            ]
+        ]
+    },
+    {
+        "id": "d82ff9be81f47e96",
+        "type": "http request",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 820,
+        "wires": [
+            [
+                "9182f5158b7cdca3"
+            ]
+        ]
+    },
+    {
+        "id": "9182f5158b7cdca3",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "c03a8e419d86e48c",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Create MQTT connection (only 1 time)",
+        "info": "",
+        "x": 270,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "2f3416ca50cfb054",
+        "type": "http request",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 730,
+        "y": 1000,
+        "wires": [
+            [
+                "59293366b3d455d4"
+            ]
+        ]
+    },
+    {
+        "id": "59293366b3d455d4",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "4e36e96aa6bd5bc4",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Send",
+        "info": "",
+        "x": 190,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "79a34ac13eb3d7ae",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Receive",
+        "info": "",
+        "x": 200,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "d351775567b9aa93",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 1120,
+        "wires": [
+            [
+                "e2b76491dc0e9ea8"
+            ]
+        ]
+    },
+    {
+        "id": "e2b76491dc0e9ea8",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "DELETE MQTT Connection",
+        "func": "let devusr = flow.get(\"DevUser\")\nlet devpass = flow.get(\"DevPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\nlet mosquittourio = flow.get(\"MosquittoUri\")\n\nlet aut_string = devusr+\":\"+devpass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"DELETE\"\nmsg.url = \"http://\" + honoip + \":\" + honoport + \"/api/2/connections/mqtt-example-connection-123\"\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 1120,
+        "wires": [
+            [
+                "ae9d62224cdb6e07"
+            ]
+        ]
+    },
+    {
+        "id": "ae9d62224cdb6e07",
+        "type": "http request",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 730,
+        "y": 1120,
+        "wires": [
+            [
+                "d4605d52c75edc63"
+            ]
+        ]
+    },
+    {
+        "id": "d4605d52c75edc63",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "5adee6446be57eea",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 6",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e4f48dd2c34ac24d",
+        "type": "mqtt in",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "ditto-tutorial/mynamespace:mydevice",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "ea90c31cbed5a177",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 270,
+        "y": 500,
+        "wires": [
+            [
+                "7866eee5b54bdddd"
+            ]
+        ]
+    },
+    {
+        "id": "7866eee5b54bdddd",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 7",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "c42eeb698e5e0a27",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 1000,
+        "wires": [
+            [
+                "f3c20c5947b1acf8"
+            ]
+        ]
+    },
+    {
+        "id": "f3c20c5947b1acf8",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Create MQTT Connection",
+        "func": "let devusr = flow.get(\"DevUser\")\nlet devpass = flow.get(\"DevPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\nlet mosquittourio = flow.get(\"MosquittoUri\")\n\nlet aut_string = devusr+\":\"+devpass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"POST\"\nmsg.url = \"http://\" + honoip + \":\" + honoport + \"/devops/piggyback/connectivity?timeout=10\"\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\nmsg.payload = {\n    \"targetActorSelection\": \"/system/sharding/connection\",\n    \"headers\": {\n        \"aggregate\": false\n    },\n    \"piggybackCommand\": {\n        \"type\": \"connectivity.commands:createConnection\",\n        \"connection\": {\n            \"id\": \"mqtt-example-connection-123\",\n            \"connectionType\": \"mqtt\",\n            \"connectionStatus\": \"open\",\n            \"failoverEnabled\": true,\n            \"uri\": mosquittourio,\n            \"sources\": [{\n                \"addresses\": [\"ditto-tutorial/#\"],\n                \"authorizationContext\": [\"nginx:ditto\"],\n                \"qos\": 0,\n                \"filters\": []\n            }],\n            \"targets\": [{\n                \"address\": \"ditto-tutorial/{{ thing:id }}\",\n                \"topics\": [\n                    \"_/_/things/twin/events\",\n                    \"_/_/things/live/messages\"\n                ],\n                \"authorizationContext\": [\"nginx:ditto\"],\n                \"qos\": 0\n            }]\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 1000,
+        "wires": [
+            [
+                "2f3416ca50cfb054"
+            ]
+        ]
+    },
+    {
+        "id": "7ca086119d31c9fb",
+        "type": "mqtt out",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "ea90c31cbed5a177",
+        "x": 1210,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "cb9e282224733f3e",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Send data",
+        "func": "let hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\n\nlet temp = Math.random()*100\n\nmsg.topic = \"ditto-tutorial/\"+hononame+\":\"+honodevice\nmsg.payload = {\n    \"topic\": hononame + \"/\" + honodevice+\"/things/twin/commands/modify\",\n    \"path\":\"/features/temp_sensor\",\n    \"headers\":{},\n    \"value\": {\n        \"properties\": {\n            \"value\": temp\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1010,
+        "y": 240,
+        "wires": [
+            [
+                "7ca086119d31c9fb",
+                "420403274f806266"
+            ]
+        ]
+    },
+    {
+        "id": "ceaac65d4681f461",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 800,
+        "y": 240,
+        "wires": [
+            [
+                "cb9e282224733f3e"
+            ]
+        ]
+    },
+    {
+        "id": "6c292f41d3828c0b",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Send 1 feature",
+        "info": "",
+        "x": 820,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "420403274f806266",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 18",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "cc9359f3bdac73a7",
+        "type": "mqtt in",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "ditto-tutorial/mynamespace:mydevice2",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "ea90c31cbed5a177",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 270,
+        "y": 560,
+        "wires": [
+            [
+                "e93bf1fc96714145"
+            ]
+        ]
+    },
+    {
+        "id": "e93bf1fc96714145",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 19",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "32be0fa73bb47c38",
+        "type": "http request",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 730,
+        "y": 1040,
+        "wires": [
+            [
+                "8a2feb90e50ec2f2"
+            ]
+        ]
+    },
+    {
+        "id": "8a2feb90e50ec2f2",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 20",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "b172c75427bf7c90",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Create MQTT Connection cert",
+        "func": "let devusr = flow.get(\"DevUser\")\nlet devpass = flow.get(\"DevPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\nlet mosquittourio = flow.get(\"MosquittoUri\")\nlet ca_cert = flow.get(\"ca_cert\")\nlet client_cert = flow.get(\"client_cert\")\nlet client_key = flow.get(\"client_key\")\n\n\nlet aut_string = devusr+\":\"+devpass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"POST\"\nmsg.url = \"http://\" + honoip + \":\" + honoport + \"/devops/piggyback/connectivity?timeout=10\"\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\nmsg.payload = {\n    \"targetActorSelection\": \"/system/sharding/connection\",\n    \"headers\": {\n        \"aggregate\": false\n    },\n    \"piggybackCommand\": {\n        \"type\": \"connectivity.commands:createConnection\",\n        \"connection\": {\n            \"id\": \"mqtt-example-connection-123\",\n            \"connectionType\": \"mqtt\",\n            \"connectionStatus\": \"open\",\n            \"failoverEnabled\": true,\n            \"uri\": \"ssl://mosquitto:8883\",\n            \"ca\": ca_cert,\n            \"credentials\": {\n                \"type\": \"client-cert\",\n                \"cert\": client_cert,\n                \"key\": client_key\n            },\n            \"sources\": [{\n                \"addresses\": [\"ditto-tutorial/#\"],\n                \"authorizationContext\": [\"nginx:ditto\"],\n                \"qos\": 0,\n                \"filters\": []\n            }],\n            \"targets\": [{\n                \"address\": \"ditto-tutorial/{{ thing:id }}\",\n                \"topics\": [\n                    \"_/_/things/twin/events\",\n                    \"_/_/things/live/messages\"\n                ],\n                \"authorizationContext\": [\"nginx:ditto\"],\n                \"qos\": 0\n            }]\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 1040,
+        "wires": [
+            [
+                "32be0fa73bb47c38"
+            ]
+        ]
+    },
+    {
+        "id": "cf9d22225e8ef623",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 1040,
+        "wires": [
+            [
+                "b172c75427bf7c90"
+            ]
+        ]
+    },
+    {
+        "id": "52172cd1ff89bad3",
+        "type": "mqtt in",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "device2",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "b12c75dd7764cb29",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 380,
+        "wires": [
+            [
+                "7a77d22785fd9bda"
+            ]
+        ]
+    },
+    {
+        "id": "1a92220a8ce8330f",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Send data",
+        "func": "let hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\n\nlet temp = Math.random()*100\nlet height = Math.random() * 100\n\nmsg.topic = \"device1\"\nmsg.payload = {\n    \"topic\": hononame + \"/\" + honodevice+\"/things/twin/commands/modify\",\n    \"path\":\"/features\",\n    \"headers\":{},\n    \"value\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": temp\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": height\n            }\n        }\n    },\n    \"database\":[\"Influx\", \"Postgres\"]\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 400,
+        "wires": [
+            [
+                "c3f034d343a52504"
+            ]
+        ]
+    },
+    {
+        "id": "4240c98467aac841",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 820,
+        "y": 400,
+        "wires": [
+            [
+                "1a92220a8ce8330f"
+            ]
+        ]
+    },
+    {
+        "id": "c3f034d343a52504",
+        "type": "mqtt out",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6d633d8fb46efafb",
+        "x": 1170,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "7a77d22785fd9bda",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 21",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "3ed76e5e1aa368ef",
+        "type": "mqtt in",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "device2",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "6d633d8fb46efafb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 440,
+        "wires": [
+            [
+                "7016caafc3278015"
+            ]
+        ]
+    },
+    {
+        "id": "7016caafc3278015",
+        "type": "debug",
+        "z": "26aebc6e1624a286",
+        "name": "debug 22",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "9f7ef85b8e0289c1",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Send data",
+        "func": "let hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice\")\n\nlet temp = Math.random()*100\nlet height = Math.random() * 100\n\nmsg.topic = \"device2\"\nmsg.payload = {\n    \"topic\": hononame + \"/\" + honodevice+\"/things/twin/commands/modify\",\n    \"path\":\"/features\",\n    \"headers\":{},\n    \"value\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": temp\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": height\n            }\n        }\n    },\n    \"database\":[\"Influx\", \"Postgres\"]\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 460,
+        "wires": [
+            [
+                "c8d87cc1421f0962"
+            ]
+        ]
+    },
+    {
+        "id": "13d08504d0c3f475",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 820,
+        "y": 460,
+        "wires": [
+            [
+                "9f7ef85b8e0289c1"
+            ]
+        ]
+    },
+    {
+        "id": "c8d87cc1421f0962",
+        "type": "mqtt out",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6d633d8fb46efafb",
+        "x": 1170,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "805aedb38f4889de",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Set certs",
+        "func": "var ca_cert = \"----- BEGIN CERTIFICATE-----\\n    MIIDjzCCAnegAwIBAgIUTzCCY6mqx6wSlC03qeDqZIQGJAEwDQYJKoZIhvcNAQEL\\nBQAwVzELMAkGA1UEBhMCUFQxDzANBgNVBAgMBkFWRUlSTzEPMA0GA1UEBwwGQVZF\\nSVJPMQswCQYDVQQKDAJVQTEMMAoGA1UECwwDREVNMQswCQYDVQQDDAJDQTAeFw0y\\nNDEwMjMxNDU1MTlaFw0zNDEwMjExNDU1MTlaMFcxCzAJBgNVBAYTAlBUMQ8wDQYD\\nVQQIDAZBVkVJUk8xDzANBgNVBAcMBkFWRUlSTzELMAkGA1UECgwCVUExDDAKBgNV\\nBAsMA0RFTTELMAkGA1UEAwwCQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK\\nAoIBAQDIMxTwZGbyQ9z + caqQOcnbh / TOBeUslhJk4ad975xYOxjUYbOybeykLei7\\n39Ud4tIArvpOKP0oWtv0Ocvk1GLsSAe3VTYG1TgT5I8X + 2UhS0sa9IORgkHdrwb0\\nNv4YEzdVotpdR2UmbEwVemdOav9UHf9HZrIdH / g6kPXHN / DJ9qKLVkxVQQXQKmyv\\nPUjnSqceissS5JuKsTGGvrD / t28rYHrHwmX0HecEJ6jpPq2Tknn1QqBwYG + /VNXk\\nifGXyGCY5wzm / AbtIipJWhHY4GRwNOD65qwAQNEUuAUJSSWQnboU2hYM6sYeJ / il\\nI / cbNOBWJU7Qv0MnyDBUDzjDtFc5AgMBAAGjUzBRMB0GA1UdDgQWBBQLN0C3PDPm\\nJcaix5miXl / i8PpyXTAfBgNVHSMEGDAWgBQLN0C3PDPmJcaix5miXl / i8PpyXTAP\\nBgNVHRMBAf8EBTADAQH / MA0GCSqGSIb3DQEBCwUAA4IBAQATgXTEFEAtbYcRT0Ua\\nrO3rRS2NmH5iS2qRCVDEaBgM84s69mXzpWF0PBhaVir0wMpsGRvcqiWFLbegklJ1\\nCHYZQTBHlYHfeteaD0dDUsGsm0sCNOi3ElNmnR2 / RNPbpJieCh1 / q6wM2v / 3D5WE\\nkWcwepiVZvIHEW3Env7n / NMOLjoYMbZIR3qhwEIZpyhtnnu9IPV6O3wwX9kbNQKn\\nca5yDV + 9VdXzdLY5FRZWEl2mmqkgPr9e3FAuGSaHNMYHh1PHzPDqxAcVnxyQ2BiX\\nj4 / XpuO7yiPtabO2Pk + ADdgBjt8llrFdOq6zD0PkMCleH7VTWf2D0 + /LZFsJogCx\\nMUHW\\n----- END CERTIFICATE-----\"\nvar client_cert = \"-----BEGIN CERTIFICATE-----\\nMIIDlzCCAn + gAwIBAgIUMc8I0rGbTfQg6GaJVgmKNjdCdL8wDQYJKoZIhvcNAQE\\nBQAwWzELMAkGA1UEBhMCUFQxDzANBgNVBAgMBkF2ZWlybzEPMA0GA1UEBwwGQXZl\\naXJvMQswCQYDVQQKDAJVQTEMMAoGA1UECwwDREVNMQ8wDQYDVQQDDAZDbGllbnQw\\nHhcNMjQxMDIzMTUyNDE1WhcNMjUxMDIzMTUyNDE1WjBbMQswCQYDVQQGEwJQVDEP\\nMA0GA1UECAwGQXZlaXJvMQ8wDQYDVQQHDAZBdmVpcm8xCzAJBgNVBAoMAlVBMQww\\nCgYDVQQLDANERU0xDzANBgNVBAMMBkNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD\\nggEPADCCAQoCggEBAJSFRrOzTW5IPcYs2OvrsPiG85JhFvf5Efw81eGrbWrgxQ0u\\n    / ZKgv3yZgTTYMZEwElOdMzbvutOq7Blxdmc0D3YVOYAkz4wUOteiOZRd8Lxrkw / K\\nsKDoo9J6fy + PYihFtABh / 7EixW8MAZ656I1kDiut7HQwtPmUMeDU1SBa65WAGFwK\\npVBgsIegzM0cgUFc / unJJXMdcdBqzQSZh36KcFGjYaMKzr02mPeVbozhV9kuLNdq\\nmOjEiYEdqKuwo / kYS + PFNimYZubmQ2aDsLqasNTARjqbtp0zgBUD + 81pSrmx3S1K\\nQRXLvl9GhvJ4zeZRgpM1Baqni3ehJCyFcSRtgcsCAwEAAaNTMFEwHQYDVR0OBBYE\\nFGCOT + MnfORpzmIx9//cgESF4HbIMB8GA1UdIwQYMBaAFGCOT+MnfORpzmIx9//c\\ngESF4HbIMA8GA1UdEwEB / wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAB4Ul574\\nTEJsEeZrzUalpqywJk3Qz / bI8HroK7YyHlOw7kAEyf4273XyOEY / Ow8oXsuRMUuJ\\nuwyeIdFcsO1V5zvHWP45e / hUi6BbFhcve6RCrjj1rCQw8Yv8CTdpFd78J4iZ43eH\\nX8RwhaT32NKo81ZhwXV4Z9hMuSWpvv5vGMi5udAllsBPVyIFBqB9Prppy9 / ayzQw\\non8lWnDWCfhUym2FyYD6OvCWorpfDtTh3xVLAE1r611oNhQRTdehU + mz1WGrMtBy\\nyf7xQd5zQ8jJ / VXFLFICKxTfMwYCms39RurImRaCIcYYHRDVUcL7M9e2ZN2NL + As\\nDocmO3bnUdSHiYE =\\n    ----- END CERTIFICATE-----\"\n\nvar client_key = \"-----BEGIN PRIVATE KEY-----\\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCUhUazs01uSD3G\\nLNjr67D4hvOSYRb3 + RH8PNXhq21q4MUNLv2SoL98mYE02DGRMBJTnTM277rTquwZ\\ncXZnNA92FTmAJM + MFDrXojmUXfC8a5MPyrCg6KPSen8vj2IoRbQAYf + xIsVvDAGe\\nueiNZA4rrex0MLT5lDHg1NUgWuuVgBhcCqVQYLCHoMzNHIFBXP7pySVzHXHQas0E\\nmYd + inBRo2GjCs69Npj3lW6M4VfZLizXapjoxImBHairsKP5GEvjxTYpmGbm5kNm\\ng7C6mrDUwEY6m7adM4AVA / vNaUq5sd0tSkEVy75fRobyeM3mUYKTNQWqp4t3oSQs\\nhXEkbYHLAgMBAAECggEAJ7J71FpPjvOWN1sTW / OyaKtBfVWgGwWizgXAsUHtzAxp\\n    / v0ZX9DBfd9VzrcegI0VyO2Sm9N130 + nLaHLIQikPU6tANhV9T4PAEXnGAYH64Th\\nWO43SbsE1qRRTHgJp3QCCbwn6MO / e8 / 8ut08EFa3BuvE8MV4CeGXd13L3YsPvvSG\\ntwpExuzk8VmWIze6exFqHuXSOqGfqEYjL6T / gR2iDYi0meN7QGJLwwFD1kAazqJD\\nEH7ymU4rIgbVXuJxZQOL7HmCQE8PRxgBdvvQD1Uu5l4uNvNtdQMQl + bWUKstwELY\\nYkZOj8jXAl6HPVMIR9Nmu4BBlD5vJ97kyIIt30qjaQKBgQDL4JYMXpImDXdx69YQ\\nlKgKg0f8 / 4oVGkKo4J5YbOf3JTq8KuFlu0B8 + gSKs / QQ / V93uQze6q + /cYX84j0H\\n03fUHKpo4BMhnaEsPOKm + B43u4yZanJ0D2WxAxFXKKMo3SMRX2PhNOLdVrUnLYs9\\n0i2hJpyqEIpf2ZyO7Vw8ROCa9wKBgQC6fbETC3l1PSsDj9xFZ4neZrXA1 / MGDL / +\\n    DwV / 2wEOGyrXF1NhcHtcb3wRHXvW1CJG4sw5dJP1CfdnbMyXwYipd2CAegkoJJVq\\n43YddS / vJTL3DV8UKVZMXBDN1YytUfJESJAX + Xh34UbNe0R + sIw / jotkyYIXZq / p\\nkNdcSAVmzQKBgGxCJWsMDK8IF5T2lgTX6yMp8t / 1EW2DNEJYg7yQl9w0eKvSWT2b\\n4PJ8EE1WoRMkd70rFhqIpCoULgHKYH33XHnVfueRlJcVDLBg5DmlJuaRQGd2jq / y\\nPR1xc5PEkF7yjdx7up2rZ4wArtDO7lE1eeVIi4gCoHelJez / PSsDqAChAoGAQQ + 4\\nxzwpk41ThFqcLlqA7uZGYpD0aBfqo2f6MzDknVc9Cu1IWaY0Y3tBfXcbzUcU7kYR\\nmbniJIrllV + PwSHz26uaLzhkGW0p87CHdJ99qaEAttAja5VAVkOIWUc3XQBJ1Si7\\nnKGcNbaSTP3EV66gP0wrtW3XxPI + TO4LNFasC8ECgYBRutPCgTCYCDiJyDKqT0oJ\\nu7g / QHfc7LyjepI9LPWckeg504Ze9G0c + HPUjClhciNPI0za4hu55y7CDDzOafW8\\n4fxZOAX6WDObzBb8v6dsJtXrh8do6yaigFxQKNZKdKXCz / 9qR28an5fj24Hp0V3a\\nLMZ5ZKG2j0BBW8gPJ1lzjw ==\\n    ----- END PRIVATE KEY-----\"\n\n\nflow.set(\"ca_cert\", ca_cert)\nflow.set(\"client_cert\", client_cert)\nflow.set(\"client_key\", client_key)\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bb745fb306ab1d01",
+        "type": "inject",
+        "z": "26aebc6e1624a286",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.2",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 880,
+        "wires": [
+            [
+                "4629e4e61c301df2"
+            ]
+        ]
+    },
+    {
+        "id": "4629e4e61c301df2",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Create Device 2",
+        "func": "let honousr = flow.get(\"HonoUser\")\nlet honopass = flow.get(\"HonoPass\")\nlet honoip = flow.get(\"HonoIp\")\nlet honoport = flow.get(\"HonoPort\")\nlet hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice2\")\n\nlet aut_string = honousr+\":\"+honopass\nlet buff = new Buffer(aut_string)\nlet aut_string_b64 = buff.toString('base64')\n\nmsg.method = \"PUT\"\nmsg.url = \"http://\" + honoip + \":\" + honoport + \"/api/2/things/\" + hononame + \":\" + honodevice\nmsg.headers={\n    \"Content-Type\": \"application/json\",\n    \"Authorization\": \"Basic \" + aut_string_b64\n}\nmsg.payload = {\n    \"policyId\": hononame + \":\" + honopolicy,\n    \"attributes\": {\n        \"name\": honodevice,\n        \"type\": \"dummy device\"\n    },\n    \"features\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": 0\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": 0\n            }\n        }\n    }\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 880,
+        "wires": [
+            [
+                "d82ff9be81f47e96"
+            ]
+        ]
+    },
+    {
+        "id": "60a9ff6098b9d707",
+        "type": "function",
+        "z": "26aebc6e1624a286",
+        "name": "Send data",
+        "func": "let hononame = flow.get(\"HonoName\")\nlet honopolicy = flow.get(\"HonoPolicy\")\nlet honodevice = flow.get(\"HonoDevice2\")\n\nlet temp = Math.random()*100\nlet height = Math.random() * 100\n\nmsg.topic = \"ditto-tutorial/\"+hononame+\":\"+honodevice\nmsg.payload = {\n    \"topic\": hononame + \"/\" + honodevice+\"/things/twin/commands/modify\",\n    \"path\":\"/features\",\n    \"headers\":{},\n    \"value\": {\n        \"temp_sensor\": {\n            \"properties\": {\n                \"value\": temp\n            }\n        },\n        \"altitude\": {\n            \"properties\": {\n                \"value\": height\n            }\n        }\n    },\n    \"database\":[\"Influx\", \"Postgres\"]\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 200,
+        "wires": [
+            [
+                "4640ff74662b0d22"
+            ]
+        ]
+    },
+    {
+        "id": "142af1f6cf5c0b7b",
+        "type": "comment",
+        "z": "26aebc6e1624a286",
+        "name": "Send message to device",
+        "info": "{\n    \"action\":\"movej\",\n    \"speed\":0.8,\n    \"position\":[-0.77,-1.58,-2.38,-0.75,1.6,0.8]\n}\n\nother positions:\n[0.16,-1.6,-2.4,-0.7,1.6,1.7]",
+        "x": 1010,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "ea90c31cbed5a177",
+        "type": "mqtt-broker",
+        "name": "master",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b12c75dd7764cb29",
+        "type": "mqtt-broker",
+        "name": "pleb",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "6d633d8fb46efafb",
+        "type": "mqtt-broker",
+        "name": "mega pleb",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

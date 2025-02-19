@@ -1,0 +1,8 @@
+#with custom programs as images:
+
+docker-compose up -d
+
+#with custom programs as builders:
+
+docker-compose build
+docker-compose up -d

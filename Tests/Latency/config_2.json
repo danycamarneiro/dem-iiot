@@ -1,0 +1,9 @@
+{
+    "HostName":"192.168.1.76",
+    "Port":8080,
+    "Ditto_user":"ditto",
+    "Ditto_pass":"ditto",
+    "device":"device1",
+    "namespace": "mynamespace",
+    "attempts":10000
+}

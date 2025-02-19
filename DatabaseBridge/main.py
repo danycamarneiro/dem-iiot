@@ -47,23 +47,28 @@ def mqtt_subscribe(client_mqtt, configfile):
         namespace_id = message_json['topic'].find("/")
         device_id = message_json['topic'].find("/", namespace_id+1)
         action = message_json['topic'][device_id+1:]
-        if action == "things/twin/commands/modify":
-            namespace = message_json['topic'][0:namespace_id]
-            device = message_json['topic'][namespace_id+1:device_id]
-            # timetime = time()
-            if 'database'in message_json:
-                for i in message_json['database']:
-                    if i.lower() == "postgres" and pg_flag:
-                        # print("postgre")
-                        # print(time()-timetime)
-                        asyncio.run(PQ_add_database(namespace, device, message_json))
-                        
-                    if i.lower() == "influx" and inf_flag:
-                        # print("influx")
-                        # print(time()-timetime)
-                        asyncio.run(Inf_add_database(namespace, device, message_json, bucket=configfile["Inf_bucket"], org=configfile["Inf_org"]))
-            else:
-                print("Object 'database' not found in the message's body")
+        try:
+            if action == "things/twin/commands/modify":
+                namespace = message_json['topic'][0:namespace_id]
+                device = message_json['topic'][namespace_id+1:device_id]
+                # timetime = time()
+                if 'database'in message_json:
+                    for i in message_json['database']:
+                        if i.lower() == "postgres" and pg_flag:
+                            # print("postgre")
+                            # print(time()-timetime)
+                            asyncio.run(PQ_add_database(namespace, device, message_json))
+                            
+                        if i.lower() == "influx" and inf_flag:
+                            # print("influx")
+                            # print(time()-timetime)
+                            asyncio.run(Inf_add_database(namespace, device, message_json, bucket=configfile["Inf_bucket"], org=configfile["Inf_org"]))
+                else:
+                    print("Object 'database' not found in the message's body")
+        except Exception as error:
+            # print("Error: " + error)
+            None
+
                     
                         
 
@@ -92,15 +97,16 @@ def get_PQ_connection(ConfigData):
 async def PQ_add_database(namespace, device, message_json):
     global pg_conn
     cursor = pg_conn.cursor()
-
+    
     # check is namespace schema existes
     cursor.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name = '"+namespace+"';")
     result = cursor.fetchone()
     # print(result)
+
     if result == None:
         # create a new schema
         cursor.execute("CREATE SCHEMA IF NOT EXISTS "+namespace+";")  
-    
+        # pg_conn.commit()
     cursor.execute("SET search_path TO " + namespace+";")
     # check if table exists
     
@@ -116,14 +122,15 @@ async def PQ_add_database(namespace, device, message_json):
 
     variables ="timestamp, "
     values = "to_timestamp(" + str(msg_timestamp) + "), "
-    # print(message_json)
+    print(message_json)
     if 'value' in message_json:
         if message_json["path"]== "/features":
             for j in message_json["value"]:
                 try:
-                    data = message_json["value"][j]["properties"]
+                    data = message_json["value"][j]["properties"]['value']
                     if not result[0]: # no table
                         datatype = type(data)
+                        print(datatype)
                         query += j + " " + datatype.__name__.capitalize() +", "
                     variables += j + ", "
                     values += str(message_json["value"][j]["properties"]["value"]) + ", "
@@ -142,6 +149,8 @@ async def PQ_add_database(namespace, device, message_json):
                     values += str(message_json["value"]["properties"][j]) + ", "
                 except:
                     print('Wrong struct used for '+ j)
+    else:
+        print("'value' not found in the message")
     if not result[0]: # no table -> create table
         cursor.execute("CREATE TABLE "+device+"("+query[:-2]+");")
     data_injected = False

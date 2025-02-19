@@ -1,1 +1,1 @@
-docker build -t iiot_mosquitto_bridge .
+docker build -t iiot_broker_bridge .

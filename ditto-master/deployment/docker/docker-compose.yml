@@ -241,6 +241,10 @@ services:
         
   nginx:
     image: docker.io/nginx:1.27-alpine
+    hostname: DittoExternalEndpoint
+    networks:
+      -  proxynet
+      -  default
     deploy:
       resources:
         limits:
@@ -268,6 +272,9 @@ services:
     hostname: mosquitto
     container_name: mosquitto_external
     restart: unless-stopped
+    networks:
+      -  proxynet
+      -  default
     ports:
       - "1883:1883"
       - "8883:8883"
@@ -275,19 +282,35 @@ services:
     volumes:
       - ./mosquitto:/etc/mosquitto
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/mosquitto_auth/auxiliar.passwd:/mosquitto/config/auxiliar.passwd
       - ./mosquitto/mosquitto.passwd:/mosquitto/config/mosquitto.passwd
       - ./mosquitto/mosquitto.acl:/mosquitto/config/mosquitto.acl
       - ./mosquitto/certs/ca.crt:/mosquitto/certs/ca.crt
       - ./mosquitto/certs/server.key:/mosquitto/certs/server.key
       - ./mosquitto/certs/server.crt:/mosquitto/certs/server.crt
-      
+  
+  iiot_broker_auth:
+    image: iiot_broker_auth
+    container_name: iiot_broker_auth
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto:/etc/mosquitto
+      # broker config file
+      - ./mosquitto/mosquitto_auth/config.json:/app/config.json
+      # Files to modify
+      - ./mosquitto/mosquitto_auth/auxiliar.passwd:/app/auxiliar.passwd
+      - ./mosquitto/mosquitto.passwd:/app/mosquitto.passwd
+      - ./mosquitto/mosquitto.acl:/app/mosquitto.acl
+      # Give docker access
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
   mosquitto_internal:
     image: eclipse-mosquitto
     hostname: MosquittoInternal
     container_name: mosquitto_internal
     restart: unless-stopped
-    ports:
-      - "2000:1883"
+    # ports:
+    #   - "2000:1883"
     volumes:
       - ./mosquitto:/etc/mosquitto
       - ./mosquitto/mosquittoin.conf:/mosquitto/config/mosquitto.conf
@@ -323,7 +346,7 @@ services:
       DOCKER_INFLUXDB_INIT_PASSWORD_FILE: /run/secrets/influxdb2-admin-password 
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs 
-      DOCKER_INFLUXDB_INIT_BUCKET: home
+      DOCKER_INFLUXDB_INIT_BUCKET: admin
     secrets:
       - influxdb2-admin-username
       - influxdb2-admin-password
@@ -350,18 +373,42 @@ services:
 
  # Custom Programs
   iiot_broker_bridge:
-    image: iiot_broker_bridge
+    image: iiot_broker_bridge:latest
     restart: unless-stopped
     container_name: iiot_broker_bridge
     volumes:
       - ./brokerbridge/InnerBridgeConfig.json:/app/InnerBridgeConfig.json
+    depends_on:
+      - mosquitto_external
+      - mosquitto_internal
       
   iiot_database_bridge:
-    image: iiot_database_bridge
+    image: iiot_database_bridge:latest
     restart: unless-stopped
     container_name: iiot_database_bridge
     volumes:
       - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json  
+    depends_on:
+      - influxdb2
+      - postgres
+      
+  # iiot_broker_bridge:
+    # build:
+      # context: ./custom_programs/BrokerBridge
+      # dockerfile: Dockerfile
+    # restart: unless-stopped
+    # container_name: iiot_broker_bridge
+    # volumes:
+      # - ./brokerbridge/innerbridgeconfig.json:/app/innerbridgeconfig.json
+      
+  # iiot_database_bridge:
+    # build: 
+      # context: ./custom_programs/DatabaseBridge
+      # dockerfile: Dockerfile
+    # restart: unless-stopped
+    # container_name: iiot_database_bridge
+    # volumes:
+      # - ./databasebridge/database_bridge_config.json:/app/database_bridge_config.json  
       
 
 secrets:

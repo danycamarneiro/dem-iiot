@@ -1,0 +1,7 @@
+{
+    "Host": "MosquittoInternal",
+    "Port": 1883,
+    "SubTopic": "#",
+    "DefaultPass" : "default",
+    "Master": "ditto"
+}
