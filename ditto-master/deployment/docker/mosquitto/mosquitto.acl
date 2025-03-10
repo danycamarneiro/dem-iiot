@@ -1,2 +1,11 @@
 user ditto
 topic readwrite #
+
+user device2
+topic readwrite ditto-tutorial/mynamespace:device2
+
+user device1
+topic readwrite ditto-tutorial/mynamespace:device1
+
+user device3
+topic readwrite ditto-tutorial/mynamespace:device3

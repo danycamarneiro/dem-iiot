@@ -6,5 +6,12 @@
     "OutPort": 1883,
     "OutSubTopic": "#",
     "OutUsername": "ditto",
-    "OutPassword": "ditto"
+    "OutPassword": "ditto",
+    "Enable_telemetry": true,
+    "Enable_commands": true,
+    "Enable_configuration_requests": true,
+    "Enable_device_management":false,
+    "Ditto_hostname": "DittoExternalEndpoint",
+    "Ditto_port": "80",
+    "Ditto_auth": "ZGl0dG86ZGl0dG8="
 }

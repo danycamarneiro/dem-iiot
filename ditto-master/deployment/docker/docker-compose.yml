@@ -309,8 +309,8 @@ services:
     hostname: MosquittoInternal
     container_name: mosquitto_internal
     restart: unless-stopped
-    # ports:
-    #   - "2000:1883"
+    ports:
+      - "2000:1883"
     volumes:
       - ./mosquitto:/etc/mosquitto
       - ./mosquitto/mosquittoin.conf:/mosquitto/config/mosquitto.conf
@@ -326,6 +326,7 @@ services:
     environment:
       POSTGRES_USER_FILE: /run/secrets/postgre-admin-username
       POSTGRES_PASSWORD_FILE: /run/secrets/postgre-admin-password
+    restart: unless-stopped
     secrets:
       - postgre-admin-username
       - postgre-admin-password
@@ -338,6 +339,7 @@ services:
   influxdb2:
     image: influxdb:2
     hostname: LocalInfluxDB
+    restart: unless-stopped
     ports:
       - 8086:8086
     environment:
