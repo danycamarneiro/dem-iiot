@@ -12,7 +12,7 @@ def database_segmentator(val):
     # print("supsup")
     p = multiprocessing.Process(target=simple_print, args=(val,))
     p.start()
-    modules.Influx
+    # modules.Influx_link()
     
 
 def simple_print(val): 

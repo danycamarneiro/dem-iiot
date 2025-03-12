@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import json
 from multiprocessing import Manager
-import DatabaseBridge.DatabaseLinks.forward as forward
+import DatabaseLinks.forward as forward
 
 #-------------------------------------MQTT--------------------------------------
 def connect_mqtt():
