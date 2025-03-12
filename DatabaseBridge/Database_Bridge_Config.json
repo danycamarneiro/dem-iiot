@@ -2,17 +2,7 @@
     "MQTTHostName": "localhost",
     "MQTTPort": 2000,
     "MQTTSubTopic": "#",
-    "Add_PG": true,
-    "PG_DB": "Admin",
-    "PG_host": "localhost",
-    "PG_user": "Admin",
-    "PG_pass": "root",
-    "PG_port": 5432,
-    "Add_Influx": true,
-    "Inf_token": "MyInitialAdminToken0==",
-    "Inf_host": "localhost",
-    "Inf_port": 8086,
-    "Inf_bucket": "Admin",
-    "Inf_org":"docs"
+    "Enable_postgres": true,
+    "Enable_influxdb": true
 
 }

@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import json
 from multiprocessing import Manager
-import DatabaseLinks.forward as forward
+import forward
 
 #-------------------------------------MQTT--------------------------------------
 def connect_mqtt():
@@ -11,8 +11,9 @@ def connect_mqtt():
             print("Connected to MQTT Broker!")
             mqtt_subscribe(client)
             global val
+            global configfile
             val['mqtt_alive'] = True
-            forward.database_segmentator(val)
+            forward.database_segmentator(val,configfile)
         else:
             print("Failed to connect to MQTT Broker, return code %d\n", reason_code)
     def on_disconnect(client, userdata, flags, reason_code, properties):
