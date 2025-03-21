@@ -31,7 +31,7 @@ services:
       # PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
       PGADMIN_DEFAULT_EMAIL: Admin@a.a
       # POSTGRES_USER: Admin
-      PGADMIN_DEFAULT_PASSWORD: AdminPassword
+      PGADMIN_DEFAULT_PASSWORD: root
     networks:
       - my-proxy-net
 

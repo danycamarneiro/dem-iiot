@@ -32,9 +32,10 @@ def connect_mqtt():
             action = message_json['topic'][device_id+1:]
             try:
                 if action == "things/twin/commands/modify":
-                    print("new message")
+                    # print("new message")
                     global val
-                    val['NewMessage'] = message_json
+                    val['NewMessage'] = True
+                    val['NewMessageContent'] = message_json
             except Exception as error:
                 # print("Error: " + error)
                 None
@@ -59,6 +60,7 @@ def main():
     global val
     val = manager.dict()
     val['NewMessage']= None
+    val['NewMessageContent']= None
 
     # set mqtt client
     mqtt_client = connect_mqtt()
