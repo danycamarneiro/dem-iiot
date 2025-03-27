@@ -21,12 +21,12 @@ def subscribe(client, config):
     def on_message(client, userdata, msg):
         message = msg.payload.decode()
         message_json = json.loads(message)
-        update_auth(message_json,msg.topic, config)
+        update_auth(message_json,msg.topic,config,client)
 
     client.subscribe(config["SubTopic"])
     client.on_message = on_message
 #----------------------------------------------------------------------------
-def update_auth(message_json,mqtt_topic,config):
+def update_auth(message_json,mqtt_topic,config,client):
     # print(message_json)
     namespace_id = message_json['topic'].find("/")
     device_id = message_json['topic'].find("/", namespace_id+1)
@@ -38,21 +38,22 @@ def update_auth(message_json,mqtt_topic,config):
             if "pass" in message_json['value']["attributes"]:
                 print("Modifying '" + mqtt_topic + "' with the password to the one in the message...")
                 update_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
+                remove_pass_from_dt(client,mqtt_topic,message_json,message_json['topic'][:device_id])
             else:
                 print("No password found. No changed done.")
         elif action == "things/twin/events/created": #create device in broker
             if "pass" in message_json['value']["attributes"]:
                 print("Creating '" + mqtt_topic + "' with the password to the one in the message....")
                 create_device_broker(mqtt_topic,message_json['value']["attributes"]["pass"],device)
+                remove_pass_from_dt(client,mqtt_topic,message_json,message_json['topic'][:device_id])
             else:
                 print("No password found! Setting '"+ mqtt_topic +"' password as default")
                 create_device_broker(mqtt_topic,config["DefaultPass"],device)
         elif action == "things/twin/events/deleted": #delete device
             print("Deleting '" + mqtt_topic +"'...")
             delete_device_broker(mqtt_topic,device)
-                
-        
-        # add delete later on
+        elif action == "things/twin/commands/modify": #updates attributes. ignore
+            pass
         else:
             print("Message ignored case 1")
     else:
@@ -197,6 +198,22 @@ def create_device_broker(mqtt_topic,password,device):
     mosquitto_container[0].restart()
     print('done')
 #----------------------------------------------------------------------------
+def remove_pass_from_dt(client,topic,message,device):
+    # print(device)
+    # print(message)
+
+    message["value"]["attributes"].pop("pass",None)
+    message_updated={
+        "topic": device +"/things/twin/commands/modify",
+        "path":"/attributes",
+        "value" : message["value"]["attributes"],
+        "check" :True
+    }
+
+    client.publish(topic, json.dumps(message_updated))
+    pass
+
+#-----------------------------------------------------------------------------
 def main():
     # Import config File
     f = open('config.json')

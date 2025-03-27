@@ -389,7 +389,8 @@ services:
     restart: unless-stopped
     container_name: iiot_database_bridge
     volumes:
-      - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json  
+      - ./databasebridge/Database_Bridge_Config.json:/app/Database_Bridge_Config.json
+      - ./databasebridge/DatabaseConfigs:/app/DatabaseConfigs 
     depends_on:
       - influxdb2
       - postgres

@@ -4,5 +4,4 @@
     "MQTTSubTopic": "#",
     "Enable_postgres": true,
     "Enable_influxdb": true
-
 }

@@ -42,6 +42,13 @@ def subscribe_in(client_in, client_out, configfile):
         add_check = False
         # print("---Message IN---")
         # print(message_json)
+
+        # remove "password" from "attributes" if exists
+        if "pass" in message_json["value"]["attributes"]:
+            message_json["value"]["attributes"].pop("pass",None)
+            # print(message_json["value"]["attributes"])
+
+        # adds a check to no duplicate msgs
         if "check" in message_json:
             if message_json["check"]:
                 pass
@@ -49,6 +56,7 @@ def subscribe_in(client_in, client_out, configfile):
                 add_check = True
         else:
             add_check = True
+        
         if add_check:
             message_json["check"]= True
             client_out.publish(msg.topic,json.dumps(message_json))
@@ -83,7 +91,7 @@ def subscribe_out(client_in, client_out, configfile):
         message = msg.payload.decode()
         message_json = json.loads(message)
         add_check = False
-        print("---Message Out---")
+        # print("---Message Out---")
         # print(message_json)
         msg_topic_id = msg.topic[msg.topic.find("/")+1:]
         ditto_topic = message_json["topic"]
@@ -200,7 +208,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-## to add:
-# only allow devices to update status, retrieve info and answer command messages
-# add a custom feature to retrieve through http

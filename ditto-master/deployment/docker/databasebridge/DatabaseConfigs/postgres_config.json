@@ -1,0 +1,7 @@
+{
+    "PG_DB": "Admin",
+    "PG_host": "LocalPostgres",
+    "PG_user": "Admin",
+    "PG_pass": "root",
+    "PG_port": 5432
+}
