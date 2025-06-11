@@ -44,9 +44,12 @@ def subscribe_in(client_in, client_out, configfile):
         # print(message_json)
 
         # remove "password" from "attributes" if exists
-        if "pass" in message_json["value"]["attributes"]:
-            message_json["value"]["attributes"].pop("pass",None)
-            # print(message_json["value"]["attributes"])
+        try:
+            if "pass" in message_json["value"]["attributes"]:
+                message_json["value"]["attributes"].pop("pass",None)
+                # print(message_json["value"]["attributes"])
+        except:
+            pass
 
         # adds a check to no duplicate msgs
         if "check" in message_json:

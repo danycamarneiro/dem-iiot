@@ -34,8 +34,7 @@ def connect_mqtt():
                 if action == "things/twin/commands/modify":
                     # print("new message")
                     global val
-                    val['NewMessage'] = True
-                    val['NewMessageContent'] = message_json
+                    val['NewMessage'].append(message_json)
             except Exception as error:
                 # print("Error: " + error)
                 None
@@ -59,8 +58,7 @@ def main():
     manager= Manager()
     global val
     val = manager.dict()
-    val['NewMessage']= None
-    val['NewMessageContent']= None
+    val['NewMessage']= manager.list()
 
     # set mqtt client
     mqtt_client = connect_mqtt()

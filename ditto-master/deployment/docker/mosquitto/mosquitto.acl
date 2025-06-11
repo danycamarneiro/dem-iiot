@@ -3,9 +3,3 @@ topic readwrite #
 
 user device1
 topic readwrite ditto-tutorial/mynamespace:device1
-
-user device3
-topic readwrite ditto-tutorial/mynamespace:device3
-
-user device2
-topic readwrite ditto-tutorial/mynamespace:device2

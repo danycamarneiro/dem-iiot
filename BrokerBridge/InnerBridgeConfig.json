@@ -1,8 +1,8 @@
 {
-    "InnerHostName": "localhost",
-    "InnerPort": 2000,
+    "InnerHostName": "MosquittoInternal",
+    "InnerPort": 1883,
     "InnerSubTopic": "#",
-    "OutHostName": "localhost",
+    "OutHostName": "mosquitto",
     "OutPort": 1883,
     "OutSubTopic": "#",
     "OutUsername": "ditto",

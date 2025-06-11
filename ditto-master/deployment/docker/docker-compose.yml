@@ -288,21 +288,6 @@ services:
       - ./mosquitto/certs/ca.crt:/mosquitto/certs/ca.crt
       - ./mosquitto/certs/server.key:/mosquitto/certs/server.key
       - ./mosquitto/certs/server.crt:/mosquitto/certs/server.crt
-  
-  iiot_broker_auth:
-    image: iiot_broker_auth
-    container_name: iiot_broker_auth
-    restart: unless-stopped
-    volumes:
-      - ./mosquitto:/etc/mosquitto
-      # broker config file
-      - ./mosquitto/mosquitto_auth/config.json:/app/config.json
-      # Files to modify
-      - ./mosquitto/mosquitto_auth/auxiliar.passwd:/app/auxiliar.passwd
-      - ./mosquitto/mosquitto.passwd:/app/mosquitto.passwd
-      - ./mosquitto/mosquitto.acl:/app/mosquitto.acl
-      # Give docker access
-      - "/var/run/docker.sock:/var/run/docker.sock"
 
   mosquitto_internal:
     image: eclipse-mosquitto
@@ -394,6 +379,21 @@ services:
     depends_on:
       - influxdb2
       - postgres
+
+  iiot_broker_auth:
+    image: iiot_broker_auth
+    container_name: iiot_broker_auth
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto:/etc/mosquitto
+      # broker config file
+      - ./mosquitto/mosquitto_auth/config.json:/app/config.json
+      # Files to modify
+      - ./mosquitto/mosquitto_auth/auxiliar.passwd:/app/auxiliar.passwd
+      - ./mosquitto/mosquitto.passwd:/app/mosquitto.passwd
+      - ./mosquitto/mosquitto.acl:/app/mosquitto.acl
+      # Give docker access
+      - "/var/run/docker.sock:/var/run/docker.sock"
       
   # iiot_broker_bridge:
     # build:
